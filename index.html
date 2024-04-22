@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HTMX Ping Example</title>
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  </head>
+  <body>
+    <div class="container">
+      <input id="inputField" type="text" style="margin-bottom: 10px" />
+      <button
+        hx-trigger="click"
+        hx-post="http://127.0.0.1:8000/create"
+        hx-target="#result"
+        hx-swap="innerHTML"
+      >
+        Add
+      </button>
+    </div>
+    <div id="result"></div>
+    <br />
+  </body>
+</html>
