@@ -1,19 +1,14 @@
 use rocket::{futures::TryStreamExt , http::ContentType};
+use rust_htmx_todo::datastruct::Task;
+
+
 use rust_htmx_todo::listgenerator;
 use std::{fs::File, vec};
 use std::io::Read;
 
 
-use mongodb::{bson::{doc, oid::ObjectId}, Client, Collection};
+use mongodb::{bson::doc, Client, Collection};
 
-use serde::{Deserialize, Serialize};
-
-
-#[derive(Serialize, Deserialize, Debug)]
-struct Task{
-    _id: ObjectId,
-    task:String
-}
 
 async fn find_all() -> mongodb::error::Result<()> {
     let uri = "mongodb+srv://dhruvgupta3377:fD4Sn5RSdFGRvzE4@todos.dviwdft.mongodb.net/?retryWrites=true&w=majority&appName=todos";
@@ -30,7 +25,7 @@ async fn find_all() -> mongodb::error::Result<()> {
         vec.push(doc);
         // println!("{:?}", doc);
     }
-
+    // println!("{:?}", vec);
     listgenerator(vec);
     Ok(())  
 }
