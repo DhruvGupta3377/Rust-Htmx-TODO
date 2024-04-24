@@ -10,24 +10,21 @@ use std::io::Read;
 use mongodb::{bson::doc, Client, Collection};
 
 
-async fn find_all() -> mongodb::error::Result<()> {
+async fn find_all() -> String{
     let uri = "mongodb+srv://dhruvgupta3377:fD4Sn5RSdFGRvzE4@todos.dviwdft.mongodb.net/?retryWrites=true&w=majority&appName=todos";
-    let client = Client::with_uri_str(uri).await?;
+    let client = Client::with_uri_str(uri).await.unwrap();
     println!("doing some thing");
     let my_coll: Collection<Task> = client
         .database("todo-db")
         .collection("todo-collection");
-    let mut cursor = my_coll.find(doc! {}, None).await?;
+    let mut cursor = my_coll.find(doc! {}, None).await.unwrap();
     
 
     let mut vec:Vec<Task> = Vec::new();
-    while let Some(doc) = cursor.try_next().await? {
+    while let Some(doc) = cursor.try_next().await.unwrap() {
         vec.push(doc);
-        // println!("{:?}", doc);
     }
-    // println!("{:?}", vec);
-    listgenerator(vec);
-    Ok(())  
+    return listgenerator(vec)  
 }
 
 
@@ -46,11 +43,16 @@ fn home() -> (ContentType, String) {
 }
 
 #[post("/")]
-async fn create() -> (ContentType, &'static str) {
-    println!("created");
-    let _ = find_all().await;
-    (ContentType::HTML, "<p>gg</p>")
+async fn create() -> (ContentType, String) {
+    let s = find_all().await;
+    (ContentType::HTML, s)
+}
 
+
+#[post("/")]
+async fn delete() -> (ContentType, String) {
+let s = find_all().await;
+(ContentType::HTML, s)
 }
 
 
@@ -59,6 +61,7 @@ async fn rocket() -> _ {
     rocket::build()
         .mount("/", routes![home])
         .mount("/create", routes![create])
+        .mount("/delete",routes![delete])
 }
 
 // TODO: Connect to a database
