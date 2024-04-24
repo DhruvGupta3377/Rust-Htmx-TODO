@@ -1,15 +1,17 @@
 use rocket::{futures::TryStreamExt , http::ContentType};
-use std::fs::File;
+use rust_htmx_todo::listgenerator;
+use std::{fs::File, vec};
 use std::io::Read;
 
 
-use mongodb::{bson::doc, Client, Collection};
+use mongodb::{bson::{doc, oid::ObjectId}, Client, Collection};
 
 use serde::{Deserialize, Serialize};
 
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Task{
+    _id: ObjectId,
     task:String
 }
 
@@ -21,9 +23,15 @@ async fn find_all() -> mongodb::error::Result<()> {
         .database("todo-db")
         .collection("todo-collection");
     let mut cursor = my_coll.find(doc! {}, None).await?;
+    
+
+    let mut vec:Vec<Task> = Vec::new();
     while let Some(doc) = cursor.try_next().await? {
-        println!("{:?}", doc);
+        vec.push(doc);
+        // println!("{:?}", doc);
     }
+
+    listgenerator(vec);
     Ok(())  
 }
 
