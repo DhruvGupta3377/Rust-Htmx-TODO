@@ -3,24 +3,20 @@ use rocket::form::Form;
 use rocket::{futures::TryStreamExt , http::ContentType};
 use rust_htmx_todo::datastruct::Task;
 use serde::{Deserialize, Serialize};
-use rocket::fairing::{AdHoc};
-
 use rust_htmx_todo::listgenerator;
 use std::str::FromStr;
 use std::{fs::File, vec};
 use std::io::Read;
-// use mongodb::options::create;
 
 
 use mongodb::{bson::doc, Client, Collection};
-// use mongodb::{ bson::doc, sync::{ Client, Collection } };
 
 #[derive(Serialize, Deserialize, Debug, FromForm)]
 struct TaskDoc{
     task:String
 }
 
-static URL: &str = "mongodb+srv://dhruvgupta3377:fD4Sn5RSdFGRvzE4@todos.dviwdft.mongodb.net/?retryWrites=true&w=majority&appName=todos";
+static URL: &str = "put your database uri here";
 
 async fn find_all() -> String{
     let client = Client::with_uri_str(URL).await.unwrap();
@@ -85,7 +81,8 @@ async fn delete(id:&str) -> (ContentType, String) {
 
 
 #[launch]
-fn rocket() -> _ {
+async fn rocket() -> _ {
+
     rocket::build()
         .mount("/", routes![home])
         .mount("/create", routes![create])
