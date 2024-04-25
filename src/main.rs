@@ -3,11 +3,13 @@ use rocket::form::Form;
 use rocket::{futures::TryStreamExt , http::ContentType};
 use rust_htmx_todo::datastruct::Task;
 use serde::{Deserialize, Serialize};
+use rocket::fairing::{AdHoc};
 
 use rust_htmx_todo::listgenerator;
 use std::str::FromStr;
 use std::{fs::File, vec};
 use std::io::Read;
+// use mongodb::options::create;
 
 
 use mongodb::{bson::doc, Client, Collection};
@@ -18,19 +20,16 @@ struct TaskDoc{
     task:String
 }
 
-
-
 static URL: &str = "mongodb+srv://dhruvgupta3377:fD4Sn5RSdFGRvzE4@todos.dviwdft.mongodb.net/?retryWrites=true&w=majority&appName=todos";
 
 async fn find_all() -> String{
     let client = Client::with_uri_str(URL).await.unwrap();
-    println!("doing some thing");
     let my_coll: Collection<Task> = client
         .database("todo-db")
         .collection("todo-collection");
-    let mut cursor = my_coll.find(None,None).await.expect("fucked up here");
+    let mut cursor = my_coll.find(None, None).await.expect("fucked up in getting all docs");
     let mut vec:Vec<Task> = Vec::new();
-    while let Some(doc) = cursor.try_next().await.unwrap() {
+    while let Some(doc) = cursor.try_next().await.expect("problem getting values out of cursor") {
         vec.push(doc);
     }
     return listgenerator(vec).await  
@@ -53,10 +52,10 @@ fn home() -> (ContentType, String) {
 #[post("/", data = "<task>")]
 async fn create(task:Form<TaskDoc>) -> (ContentType, String) {
     let client = Client::with_uri_str(URL).await.unwrap();
-    println!("doing some thing");
     let my_coll: Collection<TaskDoc> = client
         .database("todo-db")
         .collection("todo-collection");
+
     if task.task.clone() != "".to_string(){
         let doc = TaskDoc {
             task: task.task.clone()
@@ -69,7 +68,7 @@ async fn create(task:Form<TaskDoc>) -> (ContentType, String) {
 
 
 #[post("/<id>")]
-async fn delete(id:String) -> (ContentType, String) {
+async fn delete(id:&str) -> (ContentType, String) {
     let client = Client::with_uri_str(URL).await.unwrap();
     println!("deleting some thing");
     let my_coll: Collection<TaskDoc> = client
@@ -77,7 +76,7 @@ async fn delete(id:String) -> (ContentType, String) {
         .collection("todo-collection");
 
     let filter = doc!{
-        "_id": ObjectId::from_str(id.as_str()).unwrap()
+        "_id": ObjectId::from_str(id).unwrap()
     };
     my_coll.delete_one(filter, None).await.expect("couldn't fucking delete");
     let s = find_all().await;
@@ -86,7 +85,7 @@ async fn delete(id:String) -> (ContentType, String) {
 
 
 #[launch]
-async fn rocket() -> _ {
+fn rocket() -> _ {
     rocket::build()
         .mount("/", routes![home])
         .mount("/create", routes![create])
