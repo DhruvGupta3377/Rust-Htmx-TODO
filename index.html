@@ -8,7 +8,18 @@
   </head>
   <body>
     <div class="container">
-      <input id="inputField" type="text" style="margin-bottom: 10px" />
+      <form
+      hx-post="http://127.0.0.1:8000/create"
+      hx-target="#result"
+      hx-swap="innerHTML" 
+      hx-trigger="submit"
+      >
+        <input type="text" name="task" id="task">
+        <button type="submit">Submit</button>
+    </form>
+    
+
+      <!-- <input id="inputField" type="text" style="margin-bottom: 10px" />
       <button
         hx-trigger="click"
         hx-post="http://127.0.0.1:8000/create"
@@ -16,7 +27,7 @@
         hx-swap="innerHTML"
       >
         Add
-      </button>
+      </button> -->
     </div>
     <div id="result"></div>
     <br />

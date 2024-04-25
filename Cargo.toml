@@ -7,6 +7,6 @@ edition = "2021"
 
 [dependencies]
 cargo-watch = "8.5.2"
-rocket = "0.5.0"
+rocket = {version = "0.5.0", features = ["json"]}
 mongodb = "2.8.2"
 serde = { version = "1.0.198", features = ["derive"] }
